@@ -32,6 +32,12 @@ class ClassList:
                 for clsNum in teacher.Class:
                     if int(clsNum) > round(self.classNum):
                         raise Exception(teacher.name + "的班级中包含超过总班级数的序号，请检查总班级数或此老师所带的班是否正确")
+                for exp in teacher.Exception:
+                    day, time = exp
+                    day = int(day)
+                    time = int(time)
+                    if not((0 < day <= round(self.dayNum) and 0 < time <= round(self.lessonNum)) or (day == 0 and time == 0)):
+                        raise Exception((teacher.name + "的特殊需求中包含超出上课天数或上课节数的项，请检查"))
             Class.setTeacherList(args[1])
             result = self._getNoSchedule(classInfo[0][3])
             if result == -1:
@@ -40,6 +46,8 @@ class ClassList:
                 raise Exception("集体自习中有中文逗号，请修改！！")
             elif result == -3:
                 raise Exception("集体自习中有非数字部分，请修改！！")
+            elif result == -4:
+                raise Exception("集体自习中有时间超出上课天数或节数超过上课节数，请修改！！")
             else:
                 Class.setNoSchedule(result)
 
@@ -79,7 +87,10 @@ class ClassList:
                     day = re.compile(r'[0-9]\d*').findall(day)
                     time = re.compile(r'[0-9]\d*').findall(time)
                     if day and time:
-                        result.append((int(day[0]), int(time[0])))
+                        if (0 < int(day[0]) <= round(self.dayNum) and 0 < int(time[0]) <= round(self.lessonNum)) or (day == 0 and time == 0):
+                            result.append((int(day[0]), int(time[0])))
+                        else:
+                            return -4
                     else:
                         return -3
 
