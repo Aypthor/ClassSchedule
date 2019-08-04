@@ -6,9 +6,9 @@ class CourseTable:
     def __init__(self, dayNum, lessonNum):
         # 读文件决定要不要调用set
         if dayNum != 5:
-            self.dayNum = dayNum
+            self._setDayNum(dayNum)
         if lessonNum != 9:
-            self.lessonNum = lessonNum
+            self._setLessonNum(lessonNum)
         self.table = []
         for i in range(0, lessonNum + 1):
             day = []
@@ -34,3 +34,9 @@ class CourseTable:
         return day, lesson
 
 
+    @classmethod
+    def _setDayNum(cls, dayNum):
+        cls.dayNum = dayNum
+    @classmethod
+    def _setLessonNum(cls, lessonNum):
+        cls.lessonNum = lessonNum
