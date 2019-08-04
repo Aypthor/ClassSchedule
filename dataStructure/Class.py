@@ -1,4 +1,5 @@
 import random
+import re
 
 from dataStructure.CourseTable import CourseTable
 
@@ -29,13 +30,22 @@ class Class:
     def getLessonNum(cls):
         return cls.lessonNum
 
-    def getTeachers(self):
+    def getTeachers(self, totalLessonNum):
         if not self.teacherList:
             raise Exception("老师列表未初始化")
         else:
             for teacher in self.teacherList:
-                if str(self.classNo) in teacher.Class:
+                if self.classNo in teacher.Class:
                     self.teachers.append(teacher)
+        lessonNum = 0
+        for teacher in self.teachers:
+            lessonNum += teacher.originTeachHour
+        if lessonNum + len(self.noSchedule) == totalLessonNum:
+            pass
+        elif lessonNum + len(self.noSchedule) > totalLessonNum:
+            raise Exception(str(self.classNo) + "班的课时数超过一周总课时数，差值为：" + str(lessonNum + len(self.noSchedule) - totalLessonNum))
+        else:
+            raise Exception(str(self.classNo) + "班的课时数不足一周总课时数，差值为：" + str(totalLessonNum - lessonNum - len(self.noSchedule)))
 
     def allocatable(self, day, teacher):
         num = 0

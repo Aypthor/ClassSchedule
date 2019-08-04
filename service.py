@@ -1,3 +1,5 @@
+import os
+
 from dataStructure.ClassList import ClassList
 from dataStructure.Teacher import Teacher
 from dataStructure.TeacherList import TeacherList
@@ -10,9 +12,14 @@ def mainProcess():
         teacherList = TeacherList("./documents/Teachers.xlsx")
     except Exception as e:
         print(e)
+        os._exit(0)
 
     #从文件中获取班级信息
-    classList = ClassList("./documents/ClassInfo.xlsx", teacherList.list)
+    try:
+        classList = ClassList("./documents/ClassInfo.xlsx", teacherList.list)
+    except Exception as e:
+        print(e)
+        os._exit(0)
     #在课表上标出不分配课的地方
     ETeacher = Teacher(0, "E", 0, 0, 0, 0, 0, 0, 0)
     for Class in classList.list:
@@ -28,11 +35,6 @@ def mainProcess():
         print("allocating class " + str(Class.classNo))
         allocateTeacherC(Class)
         num = 0
-        for day in range(1, Class.courseTable.dayNum + 1):
-            for j in range(1, Class.courseTable.lessonNum + 1):
-                if Class.courseTable.table[j][day] != 0:
-                    num += 1
-        print(num)
         for i in range(1, Class.courseTable.lessonNum + 1):
             for j in range(1, Class.courseTable.dayNum + 1):
                 if Class.courseTable.table[i][j] == 0:

@@ -3,6 +3,7 @@ from dataStructure.CourseTable import CourseTable
 from dataStructure.Teacher import Teacher
 from tools.ExcelParser import ExcelParser
 from tools.ExcelWriter import write_excel_xlsx
+import re
 
 
 class TeacherList:
@@ -17,29 +18,43 @@ class TeacherList:
                 name = teacherInfo[0]
                 subject = teacherInfo[1]
                 teachHour = teacherInfo[3]
+                if not isinstance(teachHour, float):
+                    raise Exception(name + "的学时中有非数字，请修改！！")
                 continueTimes = teacherInfo[7]
+                if not isinstance(continueTimes, float):
+                    raise Exception(name + "的连堂课节数有非数字！！")
                 continueLength = teacherInfo[6]
                 classInfo = self._getClassInfo(teacherInfo[2])
                 if classInfo == -1:
                     raise Exception(name + "的班级中含有中文分号，请修改！！")
+                elif classInfo == -2:
+                    raise Exception(name + "的班级中有非数字部分， 请修改！！")
                 exception = self._getExceptions(teacherInfo[4])
                 if exception == -1:
                     raise Exception(name + "的特殊要求中有中文分号，请修改！！")
                 elif exception == -2:
                     raise Exception(name + "的特殊要求中有中文逗号，请修改！！")
+                elif exception == -3:
+                    raise Exception(name + "的特殊要求中有非数字部分，请修改！！")
                 Continue = teacherInfo[5]
+                if not isinstance(Continue, float):
+                    raise Exception(name + "的是否需要连堂课选项非数字，请修改！！")
                 self.list.append(Teacher(name, subject, classInfo, teachHour, exception, Continue, continueLength, continueTimes, teachHour))
 
     def _getClassInfo(self, str):
         if str.find("；") != -1:
             #含有中文分号时返回-1
             return -1
-        rawinfo = str.split(';')
+        rawInfo = str.split(';')
         info = []
         #对每一个班的数据进行去掉前后空格处理并且添加到list
-        for i in rawinfo:
+        for i in rawInfo:
             i = i.strip()
-            info.append(i)
+            classNo = re.compile(r'[1-9]\d*').findall(i)
+            if classNo:
+                info.append(int(classNo[0]))
+            else:
+                return -2
         return info
 
     def _getExceptions(self, str):
@@ -73,7 +88,12 @@ class TeacherList:
                     time = rawException[1]
                     day = day.strip()
                     time = time.strip()
-                    result.append((day, time))
+                    day = re.compile(r'[0-9]\d*').findall(day)
+                    time = re.compile(r'[0-9]\d*').findall(time)
+                    if day and time:
+                        result.append((day[0], time[0]))
+                    else:
+                        return -3
 
         return result
 
